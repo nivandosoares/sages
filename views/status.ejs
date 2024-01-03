@@ -1,0 +1,60 @@
+<%- include('layouts/header') %>
+<style>
+  body {
+      font-family: "Arial", sans-serif;
+      margin: 20px;
+  }
+
+  table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+  }
+
+  table, th, td {
+      border: 1px solid #ddd;
+  }
+
+  th, td {
+      padding: 12px;
+      text-align: left;
+  }
+
+  th {
+      background-color: #f2f2f2;
+  }
+
+  h2 {
+      text-align: center;
+  }
+</style>
+</head>
+<body>
+<h2>Acompanhe sua solicitação</h2>
+  
+<table class="table">
+    <thead>
+        <tr>
+            <th>Data</th>
+            <th>Evento</th>
+            <th>Status</th>
+            <th>Recursos Solicitados</th>
+            <th>Solicitante</th>
+            
+        </tr>
+    </thead>
+    <tbody>
+        <% events.forEach(event => { %>
+            <tr>
+              <td><%= moment(event.initialDate).format('DD/MM/YYYY') %></td>
+                <td><%= event.title %></td>
+                <td><%= event.status %></td>
+                <td><%= event.resources %></td>
+                <td><%= event.requested_by %></td>
+            </tr>
+        <% }); %>
+    </tbody>
+  
+</table>
+</body>
+<%- include('layouts/footer')%>

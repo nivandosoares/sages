@@ -1,0 +1,25 @@
+
+.text-decode-effect {
+    font-family: 'Times New Roman';
+    font-size: 0.8em;
+    white-space: pre;
+    
+  }
+  
+  .text-decode-effect span {
+    display: inline-block;
+    text-align: center;
+    width: .6em;
+    background-color: transparent;
+  }
+  
+  .text-decode-effect span.placeholder {
+    /* Mirror Font to mimic Matrix */
+    -webkit-transform: rotateY(180deg);
+    -moz-transform: rotateY(180deg);
+    -o-transform: rotateY(180deg);
+    -ms-transform: rotateY(180deg);
+    unicode-bidi: bidi-override;
+    direction: rtl;
+  }
+  

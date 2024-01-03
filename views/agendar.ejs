@@ -1,0 +1,340 @@
+<%- include('layouts/header') %>
+  <body>
+    <div class="container">
+      <center>
+        <h1 class="mt-3">Formulário de solicitação de espaço</h1>
+      </center>
+      <form
+        action="/agendar"
+        method="post"
+        enctype="multipart/form-data"
+        class="needs-validation mt-3"
+        novalidate
+        onsubmit="return validateForm()"
+      >
+        <div class="row">
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="title" class="form-label">Título do Evento:</label>
+              <input
+                type="text"
+                class="form-control"
+                id="title"
+                name="title"
+                required
+              />
+              <div class="invalid-feedback">
+                Por favor, insira o título do evento.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="description" class="form-label"
+                >Descrição do Evento:</label
+              >
+              <textarea
+                id="description"
+                name="description"
+                class="form-control"
+                required
+              ></textarea>
+              <div class="invalid-feedback">
+                Por favor, descreva seu evento.
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="initialDate" class="form-label">Data Inicial:</label>
+              <input
+                type="date"
+                class="form-control"
+                id="initialDate"
+                name="initialDate"
+                min="<%= moment().add(7, 'days').format('YYYY-MM-DD') %>"
+                required
+              />
+              <div class="invalid-feedback">
+                Por favor, insira a data inicial do evento.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="finalDate" class="form-label">Data Final:</label>
+              <input
+                type="date"
+                class="form-control"
+                id="finalDate"
+                name="finalDate"
+                min="<%= moment().add(7, 'days').format('YYYY-MM-DD') %>"
+                required
+              />
+              <div class="invalid-feedback">
+                Por favor, insira a data final do evento.
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="mb-3">
+              <label for="initialHour" class="form-label">Hora Inicial:</label>
+              <input
+                type="time"
+                class="form-control"
+                id="initialHour"
+                name="initialHour"
+                onchange="checkTimeAvailability()"
+                required
+              />
+              <div class="invalid-feedback">
+                Por favor, insira a hora inicial do evento.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="finalHour" class="form-label">Hora Final:</label>
+              <input
+                type="time"
+                class="form-control"
+                id="finalHour"
+                name="finalHour"
+                onchange="checkTimeAvailability()"
+                required
+              />
+              <div class="invalid-feedback">
+                Por favor, insira a hora final do evento.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="resources" class="form-label"
+                >Vai precisar de mesas extras? cadeiras? equipamento de som?
+                descreva-os aqui com a quantidade:</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="resources"
+                name="resources"
+                required
+              />
+              <div class="invalid-feedback">
+                Por favor, insira os recursos do evento.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="requested_by" class="form-label"
+                >Solicitante (Seu nome completo):</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="requested_by"
+                name="requested_by"
+                required
+              />
+              <div class="invalid-feedback">
+                Por favor, insira o solicitante.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="institute" class="form-label"
+                >Instituição Responsável:</label
+              >
+              <select
+                class="form-select"
+                id="responsible"
+                name="responsible"
+                required
+              >
+                <option value="" selected>Selecione uma instituição</option>
+                <% institutes.forEach(institute => { %>
+                <option value="<%= institute.id %>">
+                  <%= institute.name %>
+                </option>
+                <% }); %>
+              </select>
+              <div class="invalid-feedback">
+                Por favor, selecione uma instituição responsável.
+              </div>
+            </div>
+    
+            
+            <div class="mb-3">
+              <label for="responsible_email" class="form-label"
+                >Seu e-mail:</label
+              >
+              <input
+                type="email"
+                class="form-control"
+                id="responsible_email"
+                name="responsible_email"
+                required
+              />
+              <div class="invalid-feedback">
+                Por favor, insira um e-mail válido para o responsável.
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label for="course" class="form-label">Curso Responsável:</label>
+              <select
+                class="form-select"
+                id="course"
+                name="course"
+                required
+                disabled
+              >
+                <option value="" disabled selected>Selecione um curso</option>
+                <!-- Options will be dynamically added based on the selected institution -->
+              </select>
+              <div class="invalid-feedback">
+                Por favor, selecione um curso responsável.
+              </div>
+            </div>
+    
+            <button type="submit" class="btn btn-primary" id="submitBtn" onclick="checkTimeAvailability()">Agendar</button>
+          </form>
+    
+          <a href="/" class="btn btn-secondary mt-3">Ver Eventos Agendados</a>
+        </div>
+    
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Get references to the dropdowns
+    const responsibleDropdown = document.getElementById('responsible');
+    const courseDropdown = document.getElementById('course');
+
+    // Your array of institutes and courses from the controller
+    const institutes = <%- JSON.stringify(institutes) %>;
+
+    // Function to update the course dropdown based on the selected institute
+    function updateCourses() {
+      const selectedInstituteId = responsibleDropdown.value;
+      const selectedInstitute = institutes.find(institute => institute.id == selectedInstituteId);
+
+      // Check if selectedInstitute is defined before accessing its courses property
+      if (selectedInstitute) {
+        const courses = selectedInstitute.courses || [];
+
+        // Clear existing options
+        courseDropdown.innerHTML = '<option value="" disabled selected>Selecione um curso</option>';
+
+        // Add new options
+        courses.forEach(course => {
+          const option = document.createElement('option');
+          option.value = course.id;
+          option.textContent = course.name;
+          courseDropdown.appendChild(option);
+        });
+
+        // Enable the course dropdown
+        courseDropdown.removeAttribute('disabled');
+      } else {
+        // Handle the case where selectedInstitute is undefined
+        console.error('Selected institute not found');
+      }
+    }
+
+    // Initial call to populate the course dropdown based on the default selection
+    updateCourses();
+
+    // Add an event listener to the responsible dropdown to update the course dropdown
+    responsibleDropdown.addEventListener('change', updateCourses);
+});
+   // Adicionando filtro institucional
+   var allowedDomains = ["cometa.com","faifaculdade.com"]; // Substitua com o domínio da empresa
+
+   // Verifica se o email do usuário pertence ao domínio permitido
+   function isEmailAllowed(email) {
+     var domain = email.split("@")[1];
+     return allowedDomains.includes(domain);
+   }
+
+   // Adicionando campo "outros" para agendamento de evento com responsável externo
+   $("#new-event").on("click", function () {
+     var userEmail = "usuario@empresa.com"; // Substitua com o email do usuário logado
+     var isExternalUser = !isEmailAllowed(userEmail);
+
+     if (isExternalUser) {
+       // Usuário externo, adicione lógica para lidar com agendamento externo
+       // Por exemplo, mostrar um formulário diferente para eventos externos
+       alert("Agendamento para responsável externo. Adicione lógica específica aqui.");
+     } else {
+       // Usuário interno, redirecione para o formulário padrão
+       window.location.href = "/agendar";
+     }
+   });
+   function checkTimeAvailability() {
+    const initialHour = document.getElementById('initialHour').value;
+    const finalHour = document.getElementById('finalHour').value;
+    const initialDate = document.getElementById('initialDate').value;
+    const finalDate = document.getElementById('finalDate').value;
+
+    if (initialHour && finalHour && initialDate && finalDate) {
+        const selectedInitialDateTime = new Date(`${initialDate} ${initialHour}`);
+        const selectedFinalDateTime = new Date(`${finalDate} ${finalHour}`);
+
+        if (selectedInitialDateTime >= selectedFinalDateTime) {
+            alert('A hora final deve ser maior que a hora inicial.');
+            return;
+        }
+
+        // Fetch events from the "/aproved-events" route
+        fetch('/aproved-events')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(events => {
+                // Check for conflicts with selected time
+                const conflict = events.some(event => {
+                    const eventInitialDateTime = new Date(event.initialDate + ' ' + event.initialHour);
+                    const eventFinalDateTime = new Date(event.finalDate + ' ' + event.finalHour);
+
+                    // Check if the selected time overlaps with any existing event
+                    const overlaps = (
+                        (selectedInitialDateTime >= eventInitialDateTime && selectedInitialDateTime < eventFinalDateTime) ||
+                        (selectedFinalDateTime > eventInitialDateTime && selectedFinalDateTime <= eventFinalDateTime)
+                    );
+
+                    return overlaps;
+                });
+
+                if (conflict) {
+                    alert('O horário selecionado está indisponível,aparentemente este horário já foi reservado.');
+                    // You can add further logic here to handle the conflict
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching events:', error);
+                // Handle the error, e.g., show an alert or log it
+            });
+    }
+}
+function validateForm() {
+    const initialHour = document.getElementById('initialHour').value;
+    const finalHour = document.getElementById('finalHour').value;
+    const initialDate = document.getElementById('initialDate').value;
+    const finalDate = document.getElementById('finalDate').value;
+    const title = document.getElementById('title').value;
+    const description = document.getElementById('description').value;
+    const resources = document.getElementById('resources').value;
+    const requested_by = document.getElementById('requested_by').value;
+    const responsible = document.getElementById('responsible').value;
+    const course = document.getElementById('course').value;
+    const responsible_email = document.getElementById('responsible_email').value;
+
+    if (!initialHour || !finalHour || !initialDate || !finalDate || !title || !description || !resources || !requested_by || !responsible || !course || !responsible_email) {
+        alert('Por favor, preencha todos os campos.');
+        return false;
+    }
+
+    return true;
+}
+</script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+  
+</body>

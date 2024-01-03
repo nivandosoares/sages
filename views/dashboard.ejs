@@ -1,0 +1,162 @@
+<%- include('layouts/header') %>
+<div class="container mt-5">
+  <h1 class="mb-4">Eventos</h1>
+  <div class="alert alert-info" role="alert">
+    <strong>Esse é o modo super usuário, eventos criados por este link vão direto para o calendário sem necessidade de aprovação, porém os coordenadores responsáveis são notificados da mesma forma </strong>
+  </div>
+  <a href="/sudo" class="btn btn-primary mb-4">Criar novo evento</a>
+
+  <% const pendingEvents = events.filter(event => event.status === 'Pendente'); %>
+  <% const aprovedEvents = events.filter(event => event.status === 'Aprovado'); %>
+  <% const rejectedEvents = events.filter(event => event.status === 'Rejeitado'); %>
+<!-- Pending Events -->
+<% if (pendingEvents.length > 0) { %>
+  <div class="card">
+    <div class="card-header">
+      Eventos Pendentes
+    </div>
+    <ul class="list-group list-group-flush">
+      <% pendingEvents.forEach(event => { %>
+        <li class="list-group-item">
+          <strong>Evento:</strong> <%= event.title %><br />
+          <strong>De: </strong> <%= moment(event.initialDate).format('DD/MM/YYYY') %> <%= event.initialHour %> <br />
+          <strong>Até: </strong> <%= moment(event.finalDate).format('DD/MM/YYYY') %> <%= event.finalHour %><br />
+          <strong>Solicitante:</strong> <%= event.requested_by %><br />
+          <strong>Solicitado em:</strong> <%= moment(event.requested_at).format('DD/MM/YYYY HH:mm') %><br />
+          <strong>Recursos solicitados:</strong> <%= event.resources %><br />
+          <strong>Descrição:</strong> <%= event.description %><br />
+          <form method="put" action="/event/<%= event._id %>?_method=put" id="statusForm<%= event._id %>">
+            <div class="form-group">
+              <label for="statusSelect<%= event._id %>">Status:</label>
+              <select class="form-control" name="status" id="statusSelect<%= event._id %>" onchange="toggleTextarea('<%= event._id %>')">
+                <option value="Aprovado">Aprovar</option>
+                <option value="Rejeitado">Recusar</option>
+              </select>
+              <label for="userFeedback<%= event._id %>" id="userFeedbackLabel<%= event._id %>" style="display:none;">Deseja dar feedback adicional (motivo específico)?:</label>
+              <textarea class="form-control" name="feedback" placeholder="[Opcional] deseja adicionar algum motivo específico?" id="userFeedback<%= event._id %>" style="display:none;"></textarea>
+            </div>
+
+            <button type="button" class="btn btn-primary" onclick="updateStatus('<%= event._id %>')">Enviar</button>
+          </form>
+
+          <div id="feedback<%= event._id %>" class="mt-2"></div>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+<% } else { %>
+  <p>Nenhum evento pendente.</p>
+<% } %>
+
+
+  <!-- Approved Events -->
+  <% if (aprovedEvents.length > 0) { %>
+    <div class="mt-5 card">
+      <div class="card-header">
+        Eventos Aprovados
+      </div>
+      <ul class="list-group list-group-flush">
+        <% aprovedEvents.forEach(event => { %>
+          <li class="list-group-item">
+            <strong>Evento:</strong> <%= event.title %><br />
+            <strong>De: </strong> <%= moment(event.initialDate).format('DD/MM/YYYY') %> <%= event.initialHour %> <br />
+            <strong>Até: </strong> <%= moment(event.finalDate).format('DD/MM/YYYY') %> <%= event.finalHour %><br />
+            <strong>Solicitante:</strong> <%= event.requested_by %><br />
+            <strong>Solicitado em:</strong> <%= moment(event.requested_at).format('DD/MM/YYYY HH:mm') %><br />
+            <strong>Recursos solicitados:</strong> <%= event.resources %><br />
+            <strong>Descrição:</strong> <%= event.description %><br /><form method="put" action="/event/<%= event._id %>?_method=put" id="statusForm<%= event._id %>">
+              <div class="form-group">
+                <label for="statusSelect<%= event._id %>">Status:</label>
+                <select class="form-control" name="status" id="statusSelect<%= event._id %>">
+                  <option value="Rejeitado">Cancelar</option>
+                </select>
+                <label for="userFeedback<%= event._id %>" id="userFeedbackLabel<%= event._id %>" style="display:none;">Deseja dar feedback adicional (motivo específico)?:</label>
+                <textarea class="form-control" name="feedback" placeholder="[Opcional] deseja adicionar algum motivo específico?" id="userFeedback<%= event._id %>""></textarea>
+              
+              </div>
+
+              <button type="button" class="btn btn-primary" onclick="updateStatus('<%= event._id %>')">Enviar</button>
+            </form>
+
+            <div id="feedback<%= event._id %>" class="mt-2"></div>
+          </li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } else { %>
+    <p>Nenhum evento aprovado.</p>
+  <% } %>
+
+  <!-- Rejected Events -->
+  <% if (rejectedEvents.length > 0) { %>
+    <div class="mt-5 card">
+      <div class="card-header">
+        Eventos Rejeitados
+      </div>
+      <ul class="list-group list-group-flush">
+        <% rejectedEvents.forEach(event => { %>
+          <li class="list-group-item">
+            <strong>Evento:</strong> <%= event.title %><br />
+            <strong>De: </strong> <%= moment(event.initialDate).format('DD/MM/YYYY') %> <%= event.initialHour %> <br />
+            <strong>Até: </strong> <%= moment(event.finalDate).format('DD/MM/YYYY') %> <%= event.finalHour %><br />
+            <strong>Solicitante:</strong> <%= event.requested_by %><br />
+            <strong>Solicitado em:</strong> <%= moment(event.requested_at).format('DD/MM/YYYY HH:mm') %><br />
+            <strong>Recursos solicitados:</strong> <%= event.resources %><br />
+            <strong>Descrição:</strong> <%= event.description %><br />
+            <label for="userFeedback<%= event._id %>">Feedback:</label>
+            <div id="feedback<%= event._id %>" class="mt-2"></div>
+          </li>
+        <% }); %>
+      </ul>
+    </div>
+  <% } else { %>
+    <p>Nenhum evento rejeitado.</p>
+  <% } %>
+</div>
+<script>
+  function updateStatus(eventId) {
+    const form = document.getElementById(`statusForm${eventId}`);
+    const feedbackDiv = document.getElementById(`feedback${eventId}`);
+    const statusSelect = form.querySelector('select');
+    const userFeedback = form.querySelector('textarea');
+
+    // Perform fetch request to update status
+    fetch(form.action, {
+      method: 'PUT', // You may need to adjust the method based on your server configuration
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ status: statusSelect.value , feedback: userFeedback.value}),
+    })
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(data => {
+        console.log('Success data:', data); // Log success data for debugging
+        feedbackDiv.innerHTML = '<p class="text-success">Status atualizado com sucesso!</p>';
+        window.location.reload();
+      })
+      .catch(error => {
+        console.error('Error updating status:', error);
+        feedbackDiv.innerHTML = `<p class="text-danger">Erro inesperado ao atualizar o status. Error: ${error.message}</p>`;
+      });
+  }
+  function toggleTextarea(eventId) {
+    var statusSelect = document.getElementById('statusSelect' + eventId);
+    var userFeedbackLabel = document.getElementById('userFeedbackLabel' + eventId);
+    var userFeedbackTextarea = document.getElementById('userFeedback' + eventId);
+
+    if (statusSelect.value === 'Rejeitado') {
+      userFeedbackLabel.style.display = 'block';
+      userFeedbackTextarea.style.display = 'block';
+    } else {
+      userFeedbackLabel.style.display = 'none';
+      userFeedbackTextarea.style.display = 'none';
+    }
+  }
+
+</script>
+<%- include('layouts/footer') %>

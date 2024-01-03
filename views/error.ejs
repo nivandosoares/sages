@@ -1,0 +1,37 @@
+<%- include('layouts/header')%>
+<body>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-6 offset-md-3">
+        <div class="alert alert-danger mt-5">
+          <h1>Sua solicitação não foi processada</h1>
+          <ul>
+            <li>
+              Por favor, verifique se você preencheu corretamente o formulário;
+            </li>
+            <li>
+              Provavelmente, esse erro foi gerado porque o horário selecionado
+              já está reservado para outro evento.
+            </li>
+            <li>
+              Certifique-se de que está usando um e-mail institucional válido.
+            </li>
+            <li>
+              Se você acredita que isso é um erro, por favor, entre em contato
+              com o administrador do sistema.
+            </li>
+          </ul>
+
+          <p>
+            <a href="/agendar">Clique aqui para tentar novamente</a>
+          </p>
+          <p>
+            <a href="/">Clique aqui para voltar à página inicial</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+<%- include('layouts/footer')%>

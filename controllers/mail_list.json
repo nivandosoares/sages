@@ -1,0 +1,30 @@
+{
+  "institutes": [
+    {
+      "name": "Institute A",
+      "teachers": [
+        {
+          "name": "Teacher A",
+          "email": "teacherA@example.com"
+        },
+        {
+          "name": "Teacher B",
+          "email": "teacherB@example.com"
+        }
+      ]
+    },
+    {
+      "name": "Institute B",
+      "teachers": [
+        {
+          "name": "Teacher C",
+          "email": "teacherC@example.com"
+        },
+        {
+          "name": "Teacher D",
+          "email": "teacherD@example.com"
+        }
+      ]
+    }
+  ]
+}
