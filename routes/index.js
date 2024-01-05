@@ -19,7 +19,7 @@ const {
   renderEvent,
 } = require("../controllers/event_controller");
 
-const { login, insertUsers } = require("../controllers/user_controller");
+const { login, createAdminUsers } = require("../controllers/user_controller");
 router.use(fileUpload());
 
 // Rota para a página inicial
@@ -35,6 +35,8 @@ router.get("/sudo", getSudoForm);
 router.get("/status/:id", renderEvent);
 
 router.get("/event/:id", getEvent);
+
+router.post("/first-run", createAdminUsers);
 
 router.get("/success", (req, res) => {
   res.render("success");
