@@ -1,5 +1,13 @@
 # Sumário
 
+Aplicação Node.js com controle de eventos e usuários.
+
+**Arquivos principais**
+
+- [index.js](<index.js>)
+- [controllers/event_controller.js](<controllers/event_controller.js>)
+- [controllers/user_controller.js](<controllers/user_controller.js>)
+
 1. **Disclaimer**
    - Sobre o sistema de agendamento desenvolvido para o Grupo Cometa de Educação.
 2. **Features**
